@@ -9,7 +9,7 @@ public interface Integ {
 	public void buy(); //상품구매 메소드
 	public void cart(); //장바구니 담기 메소드(구매 내역)
 	public void cart_delete(); //장바구니 제품 삭제 메소드
-	public void cart_pay(); //장바구니 결제 메소드
+	public int cart_pay(); //장바구니 결제 메소드
 	public void m_list(); //회원 정보 보기 메소드
 	public void m_search(); //회원 검색 메소드
 	

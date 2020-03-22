@@ -33,7 +33,8 @@ public class Mall {
 				i.buy();
 				break;
 			case "4":
-				
+				//장바구니 보기
+				i.cart();
 				break;
 			case "5":
 				

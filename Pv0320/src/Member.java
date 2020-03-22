@@ -7,6 +7,7 @@ public class Member {
 	String pw;
 	String nm;
 	String ph;
+	int m_point=0;
 	
 	{
 		memNum = ++count;

@@ -6,6 +6,7 @@ public class Integimp implements Integ {
 
 	ArrayList<Member> member = new ArrayList<Member>(); //회원 목록
 	ArrayList<Product> product = new ArrayList<Product>(); //제품 목록
+	ArrayList<Product> cartlist = new ArrayList<Product>(); //장바구니 목록
 	ArrayList<Buylist_for_admin> order = new ArrayList<Buylist_for_admin>();//모든 회원의 주문목록
 	HashMap<String, String> login = new HashMap<String, String>(); //로그인 확인 해시맵
 	Scanner scan = new Scanner(System.in);
@@ -223,9 +224,11 @@ public class Integimp implements Integ {
 				Product p = (Product)product.get(i);
 				if(p instanceof Iphone) {
 					Iphone ip = (Iphone) p;
+					System.out.print(ip.product_num+" ");
 					System.out.println(ip);
 				} else if(p instanceof Galaxy) {
 					Galaxy g = (Galaxy) p;
+					System.out.print(g.product_num+" ");
 					System.out.println(g);
 				}
 			}//for
@@ -237,33 +240,155 @@ public class Integimp implements Integ {
 				break;
 			}
 			Product p = (Product)product.get(select-1);
+			cartlist.add(p);
 			System.out.println(p.name+"을(를)장바구니에 담았습니다.");
-			
+			continue;
+						
 //			login.keySet();
 			
 //			order.add(login.keySet(), );
-			continue;
 		}//while		
 	}
 
 	
 	@Override
 	public void cart() {
-
 		
+		if(cartlist.isEmpty()) {
+			System.out.println("장바구니에 담은 상품이 없습니다.");
+			return;
+		}
+		
+		while(true) {
+		System.out.println("장바구니 리스트");
+		int i;
+		for(i=0; i<cartlist.size(); i++) {
+			Product p = (Product)cartlist.get(i);
+			if(p instanceof Iphone) {
+				Iphone ip = (Iphone)p;
+				System.out.print((i+1)+"	");
+				System.out.println(ip);
+			} else if(p instanceof Galaxy) {
+				System.out.print((i+1)+"	");
+				Galaxy g = (Galaxy)p;
+				System.out.println(g);
+			}
+		}//for
+		
+		int reValue;
+		
+			System.out.println("1.결제하기		2.삭제하기		99.메인");
+			System.out.print(">>");
+			int select = scan.nextInt();
+			switch (select) {
+			case 1:
+				reValue = cart_pay();
+				if(reValue==0) {
+					return;
+				} else if(reValue==1) {
+					System.out.println("주문이 완료되었습니다.");
+					return;
+				} else if(reValue==99) {
+					break;					
+				}
+			
+			case 2:
+				cart_delete();
+				break;
+			
+			case 99:
+				return;
+				
+			default:
+				System.out.println("다시 선택하세요.");
+				break;
+			} //switch			
+		}//while
+	}
+	
 
+	@Override
+	public int cart_pay() {
+		// TODO Auto-generated method stub
+		if(login.isEmpty()) {
+			System.out.println("로그인 후 주문이 가능합니다.");
+			return 0;
+		}
+		
+		System.out.println("주문 리스트");
+		int i;
+		int total_price=0;
+		String buyerID="";
+		
+		// 구매자 아이디 가져오기
+		for(String key :login.keySet()){ //foreach문..
+			buyerID = key;
+		}
+
+		for(i=0; i<cartlist.size(); i++) {
+			Product p = (Product)cartlist.get(i);
+			if(p instanceof Iphone) {
+				Iphone ip = (Iphone)p;
+				total_price += ip.price;
+				System.out.print(i+"	"); //단순 리스트 번호
+				System.out.println(ip);
+				order.add(new Buylist_for_admin(buyerID, ip.name, ip.price));
+			} else if(p instanceof Galaxy) {
+				Galaxy g = (Galaxy)p;
+				System.out.print(i+"	"); //단순 리스트 번호
+				total_price += g.price;
+				System.out.println(g);
+				order.add(new Buylist_for_admin(buyerID, g.name, g.price));
+			}
+		}//for
+		
+		System.out.println("총 주문 금액 : "+total_price);
+		while(true) {
+			System.out.println("결제를 진행하시겠습니까? 1.네  2.아니오(이전화면)");
+			int select = scan.nextInt();
+			switch (select) {
+			case 1:
+				// 구매자 포인트 적립 : buyerID와 멤버어레이리스트에서 멤버 아이디를 비교하여 해당 멤버 m_point에 값넣
+				for(int j=0; j<member.size(); j++) {
+					Member mem = (Member)member.get(j);
+					if(buyerID.equals(mem.id)) {
+						mem.m_point+=total_price/100*5;
+					}
+				}
+				//구매 완료 문구 노출
+				System.out.println("결제가 완료되었습니다.");
+				//장바구니 비우기
+				cartlist.clear();			
+				return 1;
+				
+			case 2:
+				System.out.println("결제 취소를 선택하셨습니다.");
+				return 99;
+				
+			default:
+				System.out.println("잘못 선택하셨습니다.");
+				break;
+			}//switch
+		}//while
 	}
 
 	@Override
 	public void cart_delete() {
 		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void cart_pay() {
-		// TODO Auto-generated method stub
-
+		while(true) {
+			System.out.println("삭제할 제품의 번호를 입력하세요.(이전화면:99)");
+			int select = scan.nextInt();
+			if(select==99) {
+				return;
+			}
+			if(select>cartlist.size()) {
+				System.out.println("잘못 선택하셨습니다.");
+				continue;
+			}	
+			cartlist.remove(select-1);
+			System.out.println("삭제가 완료되었습니다.");
+			return;
+		}//while
 	}
 
 	@Override
